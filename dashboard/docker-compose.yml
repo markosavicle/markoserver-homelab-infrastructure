@@ -1,18 +1,31 @@
 services:
   homarr:
     container_name: homarr
-    image: ghcr.io/ajnart/homarr:latest
+    image: ghcr.io/homarr-labs/homarr:latest
     restart: unless-stopped
+    environment:
+      - SECRET_ENCRYPTION_KEY=26f30ef9a83d3db56672ecaaf63b03777d123755bd35066bdb833763e585c9c0
+      - AUTH_SECRET=26f30ef9a83d3db56672ecaaf63b03777d123755bd35066bdb833763e585c9c0
     volumes:
-      - ./configs:/app/data/configs
-      - ./icons:/app/public/icons
-      - ./data:/data
+      - ./appdata:/appdata
     ports:
       - '7575:7575'
     networks:
       - nginx-net
-    healthcheck:
-      disable: true
+
+  glances:
+    image: nicolargo/glances:latest-full
+    container_name: glances
+    restart: unless-stopped
+    pid: host
+    ports:
+      - '61208:61208'
+    environment:
+      - GLANCES_OPT=-w
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - nginx-net
 
 networks:
   nginx-net:
