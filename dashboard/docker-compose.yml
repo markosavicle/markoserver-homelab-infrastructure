@@ -1,16 +1,18 @@
 services:
   homarr:
-    image: ghcr.io/ajnart/homarr:latest
     container_name: homarr
-    restart: always
-    ports:
-      - '7575:7575'
+    image: ghcr.io/ajnart/homarr:latest
+    restart: unless-stopped
     volumes:
       - ./configs:/app/data/configs
       - ./icons:/app/public/icons
       - ./data:/data
+    ports:
+      - '7575:7575'
     networks:
       - nginx-net
+    healthcheck:
+      disable: true
 
 networks:
   nginx-net:
