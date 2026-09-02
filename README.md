@@ -7,7 +7,7 @@ network topologies, and security configurations.
 ---
 
 ## 📐 Architecture & Network Topology
-
+```text
                                ┌─────────────────────────────────────────┐
                                │             Local Network               │
                                │           (Subnet 192.168.100.0/24)     │
@@ -42,7 +42,7 @@ network topologies, and security configurations.
  │  │ Automated Monitoring & Maintenance (Cron & Healthchecks.io Heartbeat)                            │  │
  │  └──────────────────────────────────────────────────────────────────────────────────────────────────┘  │
  └────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-
+```
 ---
 
 ## Key Features & Services
