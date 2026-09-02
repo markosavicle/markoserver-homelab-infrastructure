@@ -4,8 +4,8 @@ services:
     image: ghcr.io/homarr-labs/homarr:latest
     restart: unless-stopped
     environment:
-      - SECRET_ENCRYPTION_KEY=26f30ef9a83d3db56672ecaaf63b03777d123755bd35066bdb833763e585c9c0
-      - AUTH_SECRET=26f30ef9a83d3db56672ecaaf63b03777d123755bd35066bdb833763e585c9c0
+      - SECRET_ENCRYPTION_KEY=${HOMARR_SECRET_ENCRYPTION_KEY}
+      - AUTH_SECRET=${HOMARR_AUTH_SECRET}
     volumes:
       - ./appdata:/appdata
     ports:
