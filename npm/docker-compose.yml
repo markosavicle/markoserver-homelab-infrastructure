@@ -1,0 +1,18 @@
+services:
+  app:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: nginx-proxy-manager
+    restart: always
+    ports:
+      - '80:80'    # Standardni HTTP port
+      - '81:81'    # NPM Admin Web UI port
+      - '443:443'  # Standardni HTTPS (SSL) port
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    networks:
+      - nginx-net
+
+networks:
+  nginx-net:
+    external: true

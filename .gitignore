@@ -1,0 +1,13 @@
+# Ignore local application data and persistent databases
+**/data/
+**/letsencrypt/
+**/uptime-kuma-data/
+
+# Ignore sensitive configuration files containing credentials and keys
+**/*.env
+**/*.key
+**/*.pem
+
+# Ignore system-generated and log files
+.DS_Store
+*.log
