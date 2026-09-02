@@ -53,6 +53,16 @@
             "width": 1,
             "height": 1
           }
+        },
+        "lg": {
+          "location": {
+            "x": 2,
+            "y": 0
+          },
+          "size": {
+            "width": 1,
+            "height": 1
+          }
         }
       },
       "integration": {
@@ -61,31 +71,30 @@
       }
     },
     {
-      "id": "47af36c0-47c1-4e5b-bfc7-ad645ee6a990",
-      "name": "Donate",
-      "url": "https://ko-fi.com/ajnart",
-      "behaviour": {
-        "onClickUrl": "https://ko-fi.com/ajnart",
-        "externalUrl": "https://ko-fi.com/ajnart",
-        "isOpeningNewTab": true,
-        "tooltipDescription": "Please consider making a donation"
-      },
-      "network": {
-        "enabledStatusChecker": false,
-        "statusCodes": [
-          "200"
-        ]
-      },
+      "id": "9dcd2683-3bc5-4fb1-bae7-4520a452d649",
+      "name": "Uptime Kuma",
+      "url": "http://uptime-kuma:3001",
       "appearance": {
-        "iconUrl": "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons@master/png/ko-fi.png",
+        "iconUrl": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/uptime-kuma.svg",
         "appNameStatus": "normal",
-        "positionAppName": "row-reverse",
+        "positionAppName": "column",
         "lineClampAppName": 1,
         "appNameFontSize": 16
       },
-      "integration": {
-        "type": null,
-        "properties": []
+      "network": {
+        "enabledStatusChecker": true,
+        "statusCodes": [
+          "200",
+          "301",
+          "302",
+          "304",
+          "307",
+          "308"
+        ]
+      },
+      "behaviour": {
+        "isOpeningNewTab": true,
+        "externalUrl": "http://kuma.markoserver.local"
       },
       "area": {
         "type": "wrapper",
@@ -96,18 +105,8 @@
       "shape": {
         "md": {
           "location": {
-            "x": 4,
-            "y": 1
-          },
-          "size": {
-            "width": 1,
-            "height": 1
-          }
-        },
-        "sm": {
-          "location": {
-            "x": 2,
-            "y": 4
+            "x": 3,
+            "y": 3
           },
           "size": {
             "width": 1,
@@ -116,14 +115,18 @@
         },
         "lg": {
           "location": {
-            "x": 6,
+            "x": 3,
             "y": 0
           },
           "size": {
-            "width": 2,
+            "width": 1,
             "height": 1
           }
         }
+      },
+      "integration": {
+        "type": null,
+        "properties": []
       }
     },
     {
@@ -181,190 +184,11 @@
         },
         "lg": {
           "location": {
-            "x": 6,
-            "y": 1
-          },
-          "size": {
-            "width": 2,
-            "height": 2
-          }
-        }
-      }
-    },
-    {
-      "id": "47af36c0-47c1-4e5b-bfc7-ad645ee6a337",
-      "name": "Discord",
-      "url": "https://discord.com/invite/aCsmEV5RgA",
-      "behaviour": {
-        "onClickUrl": "https://discord.com/invite/aCsmEV5RgA",
-        "isOpeningNewTab": true,
-        "externalUrl": "https://discord.com/invite/aCsmEV5RgA",
-        "tooltipDescription": "Join our Discord server! We're waiting for your ideas and feedback. "
-      },
-      "network": {
-        "enabledStatusChecker": false,
-        "statusCodes": [
-          "200"
-        ]
-      },
-      "appearance": {
-        "iconUrl": "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons@master/png/discord.png",
-        "appNameStatus": "normal",
-        "positionAppName": "row-reverse",
-        "lineClampAppName": 1,
-        "appNameFontSize": 16
-      },
-      "integration": {
-        "type": null,
-        "properties": []
-      },
-      "area": {
-        "type": "wrapper",
-        "properties": {
-          "id": "default"
-        }
-      },
-      "shape": {
-        "md": {
-          "location": {
-            "x": 3,
-            "y": 1
-          },
-          "size": {
-            "width": 1,
-            "height": 1
-          }
-        },
-        "sm": {
-          "location": {
-            "x": 1,
-            "y": 4
-          },
-          "size": {
-            "width": 1,
-            "height": 1
-          }
-        },
-        "lg": {
-          "location": {
             "x": 4,
             "y": 0
           },
           "size": {
-            "width": 2,
-            "height": 1
-          }
-        }
-      }
-    },
-    {
-      "id": "9dcd2683-3bc5-4fb1-bae7-4520a452d649",
-      "name": "Uptime Kuma",
-      "url": "http://uptime-kuma:3001",
-      "appearance": {
-        "iconUrl": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/uptime-kuma.svg",
-        "appNameStatus": "normal",
-        "positionAppName": "column",
-        "lineClampAppName": 1,
-        "appNameFontSize": 16
-      },
-      "network": {
-        "enabledStatusChecker": true,
-        "statusCodes": [
-          "200",
-          "301",
-          "302",
-          "304",
-          "307",
-          "308"
-        ]
-      },
-      "behaviour": {
-        "isOpeningNewTab": true,
-        "externalUrl": "http://kuma.markoserver.local"
-      },
-      "area": {
-        "type": "wrapper",
-        "properties": {
-          "id": "default"
-        }
-      },
-      "shape": {
-        "md": {
-          "location": {
-            "x": 3,
-            "y": 3
-          },
-          "size": {
             "width": 1,
-            "height": 1
-          }
-        }
-      },
-      "integration": {
-        "type": null,
-        "properties": []
-      }
-    },
-    {
-      "id": "47af36c0-47c1-4e5b-bfc7-ad645ee6a330",
-      "name": "Contribute",
-      "url": "https://github.com/ajnart/homarr",
-      "behaviour": {
-        "onClickUrl": "https://github.com/ajnart/homarr",
-        "externalUrl": "https://github.com/ajnart/homarr",
-        "isOpeningNewTab": true,
-        "tooltipDescription": ""
-      },
-      "network": {
-        "enabledStatusChecker": false,
-        "statusCodes": []
-      },
-      "appearance": {
-        "iconUrl": "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons@master/png/github.png",
-        "appNameStatus": "normal",
-        "positionAppName": "row-reverse",
-        "lineClampAppName": 2,
-        "appNameFontSize": 16
-      },
-      "integration": {
-        "type": null,
-        "properties": []
-      },
-      "area": {
-        "type": "wrapper",
-        "properties": {
-          "id": "default"
-        }
-      },
-      "shape": {
-        "md": {
-          "location": {
-            "x": 3,
-            "y": 2
-          },
-          "size": {
-            "width": 2,
-            "height": 1
-          }
-        },
-        "sm": {
-          "location": {
-            "x": 1,
-            "y": 3
-          },
-          "size": {
-            "width": 2,
-            "height": 1
-          }
-        },
-        "lg": {
-          "location": {
-            "x": 2,
-            "y": 0
-          },
-          "size": {
-            "width": 2,
             "height": 1
           }
         }
@@ -569,7 +393,7 @@
             "y": 1
           },
           "size": {
-            "width": 6,
+            "width": 3,
             "height": 3
           }
         }
@@ -588,7 +412,7 @@
         "enabledLeftSidebar": false,
         "enabledRightSidebar": false,
         "enabledDocker": false,
-        "enabledPing": false,
+        "enabledPing": true,
         "enabledSearchbar": true
       },
       "pageTitle": "Homarr ⭐️",
@@ -606,7 +430,11 @@
         "columnCountSmall": 3,
         "columnCountMedium": 6,
         "columnCountLarge": 10
-      }
+      },
+      "backgroundImageAttachment": "fixed",
+      "backgroundImageRepeat": "no-repeat",
+      "backgroundImageSize": "cover",
+      "metaTitle": ""
     },
     "access": {
       "allowGuests": false
