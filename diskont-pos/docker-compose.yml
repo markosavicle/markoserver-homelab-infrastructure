@@ -1,0 +1,54 @@
+services:
+  pos-db:
+    image: postgres:16-alpine
+    container_name: diskont-pos-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pos_admin
+      POSTGRES_PASSWORD: DiskontPosPassword123!
+      POSTGRES_DB: diskont_pos_db
+    volumes:
+      - pos_db_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - pos-net
+
+  pos-backend:
+    build: ./backend
+    container_name: diskont-pos-backend
+    restart: unless-stopped
+    ports:
+      - '5050:5050'
+    environment:
+      PORT: 5050
+      DB_HOST: pos-db
+      DB_USER: pos_admin
+      DB_PASSWORD: DiskontPosPassword123!
+      DB_NAME: diskont_pos_db
+      DB_PORT: 5432
+    depends_on:
+      - pos-db
+    networks:
+      - pos-net
+      - nginx-net
+
+  pos-frontend:
+    build: ./frontend
+    container_name: diskont-pos-frontend
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    depends_on:
+      - pos-backend
+    networks:
+      - pos-net
+      - nginx-net
+
+networks:
+  pos-net:
+    driver: bridge
+  nginx-net:
+    external: true
+
+volumes:
+  pos_db_data:
