@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: false
 
       - name: Pull latest code and restart dashboard services
         run: |
