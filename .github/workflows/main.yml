@@ -5,21 +5,14 @@ on:
     branches:
       - main
 
-env:
-  ACTIONS_RUNNER_FORCE_NODE24: "true"
-  ACTIONS_RUNNER_PRINT_LOG_TO_STDOUT: "true"
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
-
 jobs:
   deploy:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Pull latest code and restart dashboard services
+      - name: Deploy and restart services
         run: |
-          cd /home/markoserver/docker/dashboard
+          cd /home/markoserver/docker
           git pull origin main
+          cd dashboard
           docker compose up -d
