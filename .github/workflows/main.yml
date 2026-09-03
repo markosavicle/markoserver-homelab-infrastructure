@@ -8,12 +8,12 @@ on:
 jobs:
   deploy:
     runs-on: self-hosted
+    env:
+      ACTIONS_RUNNER_FORCE_NODE24: true
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: false
 
       - name: Pull latest code and restart dashboard services
         run: |
