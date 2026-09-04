@@ -15,4 +15,4 @@ jobs:
           cd /home/markoserver/docker
           git pull origin main
           cd dashboard
-          docker compose up -d
+          docker compose up -d --build
