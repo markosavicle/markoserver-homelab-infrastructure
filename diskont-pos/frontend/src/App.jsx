@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ShoppingCart, Barcode, Trash2, CheckCircle2, AlertTriangle, Search, Package, RefreshCw, PlusCircle, MinusCircle } from 'lucide-react';
+import { ShoppingCart, Barcode, Trash2, CheckCircle2, AlertTriangle, Search, Package, RefreshCw, PlusCircle } from 'lucide-react';
 
 export default function App() {
   const [products, setProducts] = useState([]);
@@ -139,6 +139,51 @@ export default function App() {
     }
   };
 
+  // Keyboard Shortcuts Handler
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Close receipt modal on Enter or Escape if open
+      if (receipt) {
+        if (e.key === 'Enter' || e.key === 'Escape') {
+          e.preventDefault();
+          setReceipt(null);
+          if (barcodeRef.current) barcodeRef.current.focus();
+        }
+        return;
+      }
+
+      // F2: Pay Cash
+      if (e.key === 'F2') {
+        e.preventDefault();
+        handleCheckout('CASH');
+      }
+
+      // F4: Pay Card
+      if (e.key === 'F4') {
+        e.preventDefault();
+        handleCheckout('CARD');
+      }
+
+      // Escape: Clear cart & focus scanner
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setCart([]);
+        setDepositCart([]);
+        setError(null);
+        if (barcodeRef.current) barcodeRef.current.focus();
+      }
+
+      // F8: Quick Focus Barcode Input
+      if (e.key === 'F8') {
+        e.preventDefault();
+        if (barcodeRef.current) barcodeRef.current.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [receipt, cart, depositCart]);
+
   const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.barcode.includes(searchQuery)
   );
@@ -158,7 +203,7 @@ export default function App() {
               <input
                 ref={barcodeRef}
                 type="text"
-                placeholder="Scan Barcode..."
+                placeholder="Scan Barcode (F8 to focus)..."
                 value={barcodeInput}
                 onChange={(e) => setBarcodeInput(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
@@ -248,9 +293,12 @@ export default function App() {
       <div className="w-1/3 flex flex-col p-6 bg-slate-900 justify-between border-l border-slate-800">
         <div className="flex flex-col h-full justify-between">
           <div>
-            <div className="flex items-center gap-2 border-b border-slate-800 pb-4 mb-4">
-              <ShoppingCart className="text-emerald-400 w-6 h-6" />
-              <h2 className="text-xl font-bold text-white">Current Cart</h2>
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="text-emerald-400 w-6 h-6" />
+                <h2 className="text-xl font-bold text-white">Current Cart</h2>
+              </div>
+              <span className="text-xs text-slate-500 font-medium">[Esc] Clear</span>
             </div>
 
             <div className="space-y-2.5 overflow-y-auto max-h-[50vh] pr-1">
@@ -319,27 +367,29 @@ export default function App() {
             </div>
           </div>
 
-          {/* Checkout Summary */}
+          {/* Checkout Summary & Hotkeys Info */}
           <div className="border-t border-slate-800 pt-4 mt-auto">
-            <div className="flex justify-between text-2xl font-black mb-6 text-white">
+            <div className="flex justify-between text-2xl font-black mb-4 text-white">
               <span>Total:</span>
               <span className="text-emerald-400">{calculateTotal().toFixed(2)} RSD</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 mb-3">
               <button
                 onClick={() => handleCheckout('CASH')}
                 disabled={cart.length === 0 && depositCart.length === 0}
-                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-xl disabled:opacity-30 disabled:hover:bg-emerald-600 text-white shadow-lg transition"
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-xl disabled:opacity-30 disabled:hover:bg-emerald-600 text-white shadow-lg transition flex flex-col items-center justify-center"
               >
-                Pay Cash
+                <span>Pay Cash</span>
+                <span className="text-[10px] opacity-75 font-mono">[F2]</span>
               </button>
               <button
                 onClick={() => handleCheckout('CARD')}
                 disabled={cart.length === 0 && depositCart.length === 0}
-                className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 font-bold rounded-xl disabled:opacity-30 disabled:hover:bg-blue-600 text-white shadow-lg transition"
+                className="w-full py-3 bg-blue-600 hover:bg-blue-500 font-bold rounded-xl disabled:opacity-30 disabled:hover:bg-blue-600 text-white shadow-lg transition flex flex-col items-center justify-center"
               >
-                Pay Card
+                <span>Pay Card</span>
+                <span className="text-[10px] opacity-75 font-mono">[F4]</span>
               </button>
             </div>
           </div>
@@ -365,9 +415,10 @@ export default function App() {
             </div>
             <button
               onClick={() => setReceipt(null)}
-              className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-xl text-white transition shadow-lg"
+              className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-xl text-white transition shadow-lg flex items-center justify-center gap-2"
             >
-              Next Transaction
+              <span>Next Transaction</span>
+              <span className="text-xs opacity-75 font-mono">[Enter / Esc]</span>
             </button>
           </div>
         </div>
