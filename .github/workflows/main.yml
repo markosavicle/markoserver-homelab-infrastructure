@@ -8,11 +8,30 @@ on:
 jobs:
   deploy:
     runs-on: self-hosted
-
     steps:
-      - name: Deploy and restart services
+      - name: Smart Deploy Updated Services
         run: |
           cd /home/markoserver/docker
+          
+          # Get list of changed directories in the latest push
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          
           git pull origin main
-          cd dashboard
-          docker compose up -d --build
+
+          # Check and build Diskont POS if files in diskont-pos/ changed
+          if echo "$CHANGED_FILES" | grep -q "^diskont-pos/"; then
+            echo "--> Changes detected in diskont-pos. Rebuilding Diskont POS..."
+            cd /home/markoserver/docker/diskont-pos
+            docker compose up -d --build
+          else
+            echo "--> No changes in diskont-pos. Skipping."
+          fi
+
+          # Check and build Dashboard if files in dashboard/ changed
+          if echo "$CHANGED_FILES" | grep -q "^dashboard/"; then
+            echo "--> Changes detected in dashboard. Rebuilding Dashboard..."
+            cd /home/markoserver/docker/dashboard
+            docker compose up -d --build
+          else
+            echo "--> No changes in dashboard. Skipping."
+          fi
