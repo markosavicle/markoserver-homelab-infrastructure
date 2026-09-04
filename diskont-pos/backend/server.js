@@ -30,7 +30,7 @@ app.get('/api/products', async (req, res) => {
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
       LEFT JOIN packaging pack ON p.packaging_id = pack.id
-      ORDER BY p.name ASC;
+      ORDER BY p.id ASC;
     `;
     const result = await pool.query(query);
     res.json(result.rows);
@@ -50,17 +50,17 @@ app.get('/api/packaging', async (req, res) => {
   }
 });
 
-// Fetch product by barcode (barcode scanner integration)
+// Fetch product by barcode with trimmed space checking (barcode scanner integration)
 app.get('/api/products/barcode/:barcode', async (req, res) => {
-  const { barcode } = req.params;
+  const barcode = req.params.barcode.trim();
   try {
     const query = `
       SELECT p.*, pack.name as packaging_name, pack.deposit_price
       FROM products p
       LEFT JOIN packaging pack ON p.packaging_id = pack.id
-      WHERE p.barcode = $1;
+      WHERE TRIM(p.barcode) = $1;
     `;
-    const result = await pool.query(query);
+    const result = await pool.query(query, [barcode]);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Product not found' });
     }
