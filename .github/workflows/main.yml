@@ -13,17 +13,22 @@ jobs:
         run: |
           cd /home/markoserver/docker
           
-          # Fetch changed files between the last commit and current HEAD
-          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          # Fetch latest commits without merging yet
+          git fetch origin main
           
-          # Pull latest main branch updates
+          # Get list of changed files between current local HEAD and remote origin/main
+          CHANGED_FILES=$(git diff --name-only HEAD origin/main)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          
+          # Now pull the updates
           git pull origin main
 
-          # Loop dynamically through all service directories containing docker-compose files
+          # Loop through service directories
           for service_dir in */; do
             service_name=$(basename "$service_dir")
             
-            # Skip hidden directories like .github or .git
+            # Skip hidden directories
             if [[ "$service_name" == .* ]]; then
               continue
             fi
