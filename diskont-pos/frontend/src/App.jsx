@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ShoppingCart, Barcode, Trash2, CheckCircle2, AlertTriangle, Search, Package, RefreshCw, PlusCircle } from 'lucide-react';
+import FiscalReceipt from './FiscalReceipt';
 
 export default function App() {
   const [products, setProducts] = useState([]);
@@ -130,7 +131,24 @@ export default function App() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      setReceipt(data);
+      // Attach complete item & packaging details for fiscal printing
+      setReceipt({
+        ...data,
+        paymentMethod,
+        items: cart.map((item) => ({
+          name: item.product.name,
+          quantityUnits: item.quantityUnits,
+          unitPriceApplied: item.product.unit_price,
+          totalPrice: item.quantityUnits * parseFloat(item.product.unit_price),
+        })),
+        depositItems: depositCart.map((dItem) => ({
+          name: dItem.packaging.name,
+          quantity: dItem.quantity,
+          depositPrice: dItem.packaging.deposit_price,
+          type: dItem.type,
+        })),
+      });
+
       setCart([]);
       setDepositCart([]);
       fetchData();
@@ -396,32 +414,9 @@ export default function App() {
         </div>
       </div>
 
-      {/* Receipt Modal */}
+      {/* eFiscal Receipt Modal */}
       {receipt && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 max-w-md w-full text-center shadow-2xl">
-            <CheckCircle2 className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-1">Sale Complete</h2>
-            <p className="text-slate-400 text-xs mb-6 font-mono">Receipt: {receipt.receiptNumber}</p>
-            <div className="bg-slate-950 p-4 rounded-xl mb-6 text-left border border-slate-800">
-              <div className="flex justify-between mb-2 text-base">
-                <span className="text-slate-300">Total Paid:</span>
-                <span className="font-bold text-emerald-400">{receipt.totalAmount} RSD</span>
-              </div>
-              <div className="flex justify-between text-xs text-slate-400 border-t border-slate-800/60 pt-2">
-                <span>Included VAT (20%):</span>
-                <span>{receipt.totalVat.toFixed(2)} RSD</span>
-              </div>
-            </div>
-            <button
-              onClick={() => setReceipt(null)}
-              className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-xl text-white transition shadow-lg flex items-center justify-center gap-2"
-            >
-              <span>Next Transaction</span>
-              <span className="text-xs opacity-75 font-mono">[Enter / Esc]</span>
-            </button>
-          </div>
-        </div>
+        <FiscalReceipt receipt={receipt} onClose={() => setReceipt(null)} />
       )}
     </div>
   );
