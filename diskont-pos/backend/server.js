@@ -8,7 +8,7 @@ app.use(express.json());
 
 const port = process.env.PORT || 5050;
 
-// PostgreSQL Connection Pool
+// PostgreSQL Connection Pool configuration
 const pool = new Pool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -39,17 +39,28 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
+// Fetch packaging & deposit options for returnable items
+app.get('/api/packaging', async (req, res) => {
+  try {
+    const query = 'SELECT * FROM packaging ORDER BY name ASC;';
+    const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Fetch product by barcode (barcode scanner integration)
 app.get('/api/products/barcode/:barcode', async (req, res) => {
   const { barcode } = req.params;
   try {
     const query = `
-      SELECT p.*, pack.deposit_price
+      SELECT p.*, pack.name as packaging_name, pack.deposit_price
       FROM products p
       LEFT JOIN packaging pack ON p.packaging_id = pack.id
       WHERE p.barcode = $1;
     `;
-    const result = await pool.query(query, [barcode]);
+    const result = await pool.query(query);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Product not found' });
     }
@@ -70,10 +81,13 @@ app.get('/api/products/low-stock', async (req, res) => {
   }
 });
 
-// Checkout / Process Sale Transaction
+// Checkout / Process Sale Transaction including deposit returns
 app.post('/api/sales/checkout', async (req, res) => {
-  const { items, paymentMethod } = req.body; // items: [{ productId, quantityUnits }]
-  if (!items || items.length === 0) {
+  const { items, depositItems, paymentMethod } = req.body; 
+  // items: [{ productId, quantityUnits }]
+  // depositItems: [{ packagingId, quantity, type: 'ADD' | 'RETURN' }]
+
+  if ((!items || items.length === 0) && (!depositItems || depositItems.length === 0)) {
     return res.status(400).json({ error: 'Cart is empty' });
   }
 
@@ -86,45 +100,74 @@ app.post('/api/sales/checkout', async (req, res) => {
     let totalVat = 0;
     const saleItemsToInsert = [];
 
-    for (const item of items) {
-      const productRes = await client.query('SELECT * FROM products WHERE id = $1 FOR UPDATE', [item.productId]);
-      if (productRes.rows.length === 0) {
-        throw new Error(`Product ID ${item.productId} not found`);
+    // 1. Process regular store products
+    if (items && items.length > 0) {
+      for (const item of items) {
+        const productRes = await client.query('SELECT * FROM products WHERE id = $1 FOR UPDATE', [item.productId]);
+        if (productRes.rows.length === 0) {
+          throw new Error(`Product ID ${item.productId} not found`);
+        }
+
+        const product = productRes.rows[0];
+
+        if (product.stock_units < item.quantityUnits) {
+          throw new Error(`Insufficient stock for ${product.name}. Available: ${product.stock_units}`);
+        }
+
+        // Calculate price based on pack vs unit logic
+        let itemPrice = 0;
+        if (product.pack_price && product.units_in_pack > 1 && item.quantityUnits >= product.units_in_pack) {
+          const fullPacks = Math.floor(item.quantityUnits / product.units_in_pack);
+          const remainderUnits = item.quantityUnits % product.units_in_pack;
+          itemPrice = (fullPacks * parseFloat(product.pack_price)) + (remainderUnits * parseFloat(product.unit_price));
+        } else {
+          itemPrice = item.quantityUnits * parseFloat(product.unit_price);
+        }
+
+        const vatAmount = itemPrice * (parseFloat(product.vat_rate) / 100);
+
+        totalAmount += itemPrice;
+        totalVat += vatAmount;
+
+        saleItemsToInsert.push({
+          productId: product.id,
+          quantityUnits: item.quantityUnits,
+          unitPriceApplied: product.unit_price,
+          totalPrice: itemPrice,
+        });
+
+        // Deduct product stock
+        await client.query(
+          'UPDATE products SET stock_units = stock_units - $1 WHERE id = $2',
+          [item.quantityUnits, product.id]
+        );
       }
+    }
 
-      const product = productRes.rows[0];
+    // 2. Process packaging deposits (Crates / Returnable Bottles)
+    if (depositItems && depositItems.length > 0) {
+      for (const dItem of depositItems) {
+        const packRes = await client.query('SELECT * FROM packaging WHERE id = $1 FOR UPDATE', [dItem.packagingId]);
+        if (packRes.rows.length === 0) {
+          throw new Error(`Packaging ID ${dItem.packagingId} not found`);
+        }
 
-      if (product.stock_units < item.quantityUnits) {
-        throw new Error(`Insufficient stock for ${product.name}. Available: ${product.stock_units}`);
+        const pack = packRes.rows[0];
+        const depositUnitPrice = parseFloat(pack.deposit_price);
+        
+        // Positive for buying deposit, negative for returning empty packaging
+        const multiplier = dItem.type === 'RETURN' ? -1 : 1;
+        const depositTotalPrice = depositUnitPrice * dItem.quantity * multiplier;
+
+        totalAmount += depositTotalPrice;
+
+        // Update packaging stock inventory
+        const stockAdjustment = dItem.type === 'RETURN' ? dItem.quantity : -dItem.quantity;
+        await client.query(
+          'UPDATE packaging SET stock_quantity = stock_quantity + $1 WHERE id = $2',
+          [stockAdjustment, pack.id]
+        );
       }
-
-      // Calculate price based on pack vs unit logic
-      let itemPrice = 0;
-      if (product.pack_price && product.units_in_pack > 1 && item.quantityUnits >= product.units_in_pack) {
-        const fullPacks = Math.floor(item.quantityUnits / product.units_in_pack);
-        const remainderUnits = item.quantityUnits % product.units_in_pack;
-        itemPrice = (fullPacks * parseFloat(product.pack_price)) + (remainderUnits * parseFloat(product.unit_price));
-      } else {
-        itemPrice = item.quantityUnits * parseFloat(product.unit_price);
-      }
-
-      const vatAmount = itemPrice * (parseFloat(product.vat_rate) / 100);
-
-      totalAmount += itemPrice;
-      totalVat += vatAmount;
-
-      saleItemsToInsert.push({
-        productId: product.id,
-        quantityUnits: item.quantityUnits,
-        unitPriceApplied: product.unit_price,
-        totalPrice: itemPrice,
-      });
-
-      // Deduct inventory
-      await client.query(
-        'UPDATE products SET stock_units = stock_units - $1 WHERE id = $2',
-        [item.quantityUnits, product.id]
-      );
     }
 
     const receiptNumber = `REC-${Date.now()}`;
@@ -147,10 +190,10 @@ app.post('/api/sales/checkout', async (req, res) => {
       );
     }
 
-    await client.query('COMMIT'); // Commit transaction
+    await client.query('COMMIT'); // Commit SQL transaction
 
     res.status(201).json({
-      message: 'Sale completed successfully',
+      message: 'Sale transaction processed successfully',
       receiptNumber,
       totalAmount,
       totalVat,
