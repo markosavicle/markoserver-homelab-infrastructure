@@ -11,16 +11,11 @@ jobs:
         run: |
           cd /home/markoserver/docker
 
-          # Always operate on main explicitly, regardless of what's
-          # currently checked out interactively on this machine.
           git fetch origin main
 
           BEFORE_SHA="${{ github.event.before }}"
           AFTER_SHA="${{ github.sha }}"
 
-          # Force the working tree onto exactly what main should be —
-          # discards any local checkout state (branch or uncommitted edits)
-          # rather than merging into whatever happens to be checked out.
           git checkout -f main
           git reset --hard "$AFTER_SHA"
 
@@ -37,3 +32,8 @@ jobs:
               if echo "$CHANGED_FILES" | grep -q "^${service_name}/"; then
                 echo "--> Changes detected in ${service_name}. Rebuilding service..."
                 (cd "$service_dir" && docker compose up -d --build)
+              else
+                echo "--> No changes in ${service_name}. Skipping."
+              fi
+            fi
+          done
