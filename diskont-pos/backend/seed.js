@@ -6,7 +6,7 @@ const path = require('path');
 const pool = new Pool({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'pos_admin',
-  password: process.env.DB_PASSWORD || 'DiskontPosPassword123!',
+  password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME || 'diskont_pos_db',
   port: process.env.DB_PORT || 5432,
 });
@@ -26,5 +26,9 @@ const runSeed = async () => {
     await pool.end();
   }
 };
+
+if (!process.env.DB_PASSWORD) {
+  throw new Error('DB_PASSWORD environment variable is required');
+}
 
 runSeed();
