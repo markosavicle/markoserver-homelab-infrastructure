@@ -17,3 +17,8 @@ node_modules/
 dist/
 build/
 .DS_Store
+# Wazuh generated secrets — never commit
+wazuh/config/wazuh_indexer_ssl_certs/
+wazuh/config/wazuh_indexer/internal_users.yml
+wazuh/wazuh-agent.deb
+wazuh/build-docker-images/

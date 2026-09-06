@@ -1,6 +1,6 @@
 # Self-Hosted Enterprise HomeLab & Diskont POS Infrastructure
 
-A production-grade, containerized HomeLab infrastructure built on Ubuntu Server 24.04 LTS.
+A production-grade, containerized HomeLab infrastructure built on Ubuntu Server 26.04 LTS.
 This repository manages the Infrastructure-as-Code (IaC) setup, service orchestrations, network topologies, security configurations, and a fully automated Diskont POS system for retail operations in Serbia.
 
 ---
@@ -15,7 +15,7 @@ This repository manages the Infrastructure-as-Code (IaC) setup, service orchestr
                                                      │
                                                      ▼
  ┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
- │ Ubuntu Server 24.04 LTS (Bare-Metal Laptop) - 192.168.100.92                                           │
+ │ Ubuntu Server 26.04 LTS (Bare-Metal Laptop) - 192.168.100.92                                           │
  │                                                                                                        │
  │  ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐│
  │  │ Security Hardening: Ed25519 SSH Keys | Password Auth Disabled | UFW Firewall (Strict Default Deny) ││
@@ -79,7 +79,7 @@ Tailored specifically for beverage discount stores in Serbia, with complex packa
 
 ##  Security & OS Hardening
 
-- **OS Distribution**: Ubuntu Server 24.04 LTS (headless, power-management configured for lid-closed operation).
+- **OS Distribution**: Ubuntu Server 26.04 LTS (headless, power-management configured for lid-closed operation).
 - **Static Networking**: Fixed local IP allocation via Netplan (192.168.100.92/24).
 - **SSH Hardening**: Password authentication disabled (`PasswordAuthentication no`), root login forbidden (`PermitRootLogin no`), strictly enforced Ed25519 elliptic-curve keypair authentication.
 - **Firewall (UFW)**: Strict "Default Deny Incoming / Allow Outgoing" policy. Only required proxy/application ports are exposed.
@@ -138,7 +138,7 @@ markoserver-homelab-infrastructure/
 
 ### Prerequisites
 
-- Ubuntu Server 24.04 LTS with Docker Engine v24.0+ and Docker Compose V2.
+- Ubuntu Server 26.04 LTS with Docker Engine v24.0+ and Docker Compose V2.
 - Shared Docker bridge network: `docker network create nginx-net`.
 
 ### Deployment Steps
