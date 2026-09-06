@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: pos_admin
-      POSTGRES_PASSWORD: DiskontPosPassword123!
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: diskont_pos_db
     volumes:
       - pos_db_data:/var/lib/postgresql/data
@@ -23,7 +23,7 @@ services:
       PORT: 5050
       DB_HOST: pos-db
       DB_USER: pos_admin
-      DB_PASSWORD: DiskontPosPassword123!
+      DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: diskont_pos_db
       DB_PORT: 5432
     depends_on:
