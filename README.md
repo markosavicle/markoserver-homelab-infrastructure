@@ -1,5 +1,3 @@
-cd ~/docker
-cat > README.md << 'READMEEOF'
 # Self-Hosted Enterprise HomeLab & Diskont POS Infrastructure
 
 A production-grade, containerized HomeLab infrastructure built on Ubuntu Server 26.04 LTS.
@@ -217,4 +215,4 @@ docker ps
 ## License
 
 This project is open-source and available under the MIT License.
-READMEEOF
+
