@@ -1,10 +1,8 @@
 name: Deploy Homelab Infrastructure
-
 on:
   push:
     branches:
       - main
-
 jobs:
   deploy:
     runs-on: self-hosted
@@ -12,34 +10,30 @@ jobs:
       - name: Smart Deploy Updated Services
         run: |
           cd /home/markoserver/docker
-          
-          # Fetch latest commits without merging yet
+
+          # Always operate on main explicitly, regardless of what's
+          # currently checked out interactively on this machine.
           git fetch origin main
-          
-          # Get list of changed files between current local HEAD and remote origin/main
-          CHANGED_FILES=$(git diff --name-only HEAD origin/main)
+
+          BEFORE_SHA="${{ github.event.before }}"
+          AFTER_SHA="${{ github.sha }}"
+
+          # Force the working tree onto exactly what main should be —
+          # discards any local checkout state (branch or uncommitted edits)
+          # rather than merging into whatever happens to be checked out.
+          git checkout -f main
+          git reset --hard "$AFTER_SHA"
+
+          CHANGED_FILES=$(git diff --name-only "$BEFORE_SHA" "$AFTER_SHA")
           echo "Changed files:"
           echo "$CHANGED_FILES"
-          
-          # Now pull the updates
-          git pull origin main
 
-          # Loop through service directories
           for service_dir in */; do
             service_name=$(basename "$service_dir")
-            
-            # Skip hidden directories
             if [[ "$service_name" == .* ]]; then
               continue
             fi
-
-            # Check if directory contains a docker-compose file
             if [ -f "$service_dir/docker-compose.yml" ] || [ -f "$service_dir/docker-compose.yaml" ]; then
               if echo "$CHANGED_FILES" | grep -q "^${service_name}/"; then
                 echo "--> Changes detected in ${service_name}. Rebuilding service..."
                 (cd "$service_dir" && docker compose up -d --build)
-              else
-                echo "--> No changes in ${service_name}. Skipping."
-              fi
-            fi
-          done
