@@ -5,7 +5,8 @@ on:
       - 'diskont-pos/**'
   pull_request:
     branches: [ main, dev ]
-
+    paths:
+      - 'diskont-pos/**'
 jobs:
   trivy-scan:
     runs-on: self-hosted

@@ -1,9 +1,9 @@
 name: CI Checks (PR Validation)
-
 on:
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
+    paths:
+      - 'diskont-pos/**'
 
 jobs:
   validate-pos:
