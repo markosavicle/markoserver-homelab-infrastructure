@@ -23,3 +23,6 @@ wazuh/config/wazuh_indexer/internal_users.yml
 wazuh/wazuh-agent.deb
 wazuh/build-docker-images/
 diskont-pos/.env
+booking-saas/
+diskont-pos/
+highstakes/
