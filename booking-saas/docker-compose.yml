@@ -1,0 +1,92 @@
+services:
+  app:
+    build: ./docker/php
+    container_name: booking-app
+    restart: unless-stopped
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - booking-net
+    depends_on:
+      - mysql
+      - redis
+
+  webserver:
+    image: nginx:alpine
+    container_name: booking-web
+    restart: unless-stopped
+    ports:
+      - '8090:80'
+    volumes:
+      - ./src:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - booking-net
+      - nginx-net
+    depends_on:
+      - app
+
+  mysql:
+    image: mysql:8.0
+    container_name: booking-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - booking-mysql-data:/var/lib/mysql
+    networks:
+      - booking-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: booking-redis
+    restart: unless-stopped
+    networks:
+      - booking-net
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: booking-mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+    networks:
+      - booking-net
+      - nginx-net
+  queue:
+    build: ./docker/php
+    container_name: booking-queue
+    restart: unless-stopped
+    command: php artisan queue:work --tries=3 --sleep=3
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - booking-net
+    depends_on:
+      - mysql
+      - redis
+
+  scheduler:
+    build: ./docker/php
+    container_name: booking-scheduler
+    restart: unless-stopped
+    command: php artisan schedule:work
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - booking-net
+    depends_on:
+      - mysql
+      - redis
+
+networks:
+  booking-net:
+    driver: bridge
+  nginx-net:
+    external: true
+
+volumes:
+  booking-mysql-data:
